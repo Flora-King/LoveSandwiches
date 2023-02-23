@@ -1,5 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
+from pprint import pprint
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -40,10 +41,9 @@ def validate_data(values):
     Raises ValueError if strings cannot be converted into int,
     or if there aren't excatly 6 values.
     """
-    #print(values)
     try:
         [int(value) for value in values]
-        if len(values) !=6:
+        if len(values) != 6:
             raise ValueError(
                 f"Exactly 6 values required, you provided {len(values)}"
             )
@@ -61,7 +61,27 @@ def update_sales_worksheet(data):
     sales_worksheet.append_row(data)
     print("Sales worksheet updated successfully.\n")
 
+def calculate_surplus_date(sales_row):
+    """
+    Compare sales with stokc and calculate the surplus for each item type.
+    The surplus is defined as the sales figure subtracted from the stock:
+    - Positive surplus indicates waste
+    - Negative surplus indicates extra made when stock was sold out.
+    """
+    print("calculating surplus data...\n")
+    stock = SHEET.worksheet("stock").get_all_values()
+    stock_row = stock[-1]
+    print(stock_row)
 
-data = get_sales_data()
-sales_data = [int(num)for num in data]
-update_sales_worksheet(sales_data)
+def main():
+    """
+    Runs all program functions
+    """
+    data = get_sales_data()
+    sales_data = [int(num)for num in data]
+    update_sales_worksheet(sales_data)
+    calculate_surplus_date(sales_data)
+
+print("Welcome to Love Sandwiches Data Automation")
+
+main()
